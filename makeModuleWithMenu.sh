@@ -1,8 +1,19 @@
 #!/bin/bash
+cd src/app/main/
 echo Module Name?
 read moduleName
 echo Menu Names?
 read menuNames
+
+
+
+if grep -q "'app.$moduleName'" ../index.module.js
+then
+    echo ""\""$moduleName"\"" is already exist"
+else
+    sed -i '1h;1!H;$!d;x;s/.*'\''[^\n]*/&,\n            '\''app.'"$moduleName"''\''/' ../index.module.js
+fi
+
 
 mkdir $moduleName
 cd $moduleName
@@ -34,7 +45,9 @@ for menuName in $menuNames; do
 })();"
 
     echo "$ctrl" >$menuName/$jsFileName.ctrl.js
-    echo $menuName > $menuName/$menuName.html
+    title_upper=$(sed 's/[^-]\+/\L\u&/g' <<<"$menuName")
+    title=${title_upper//-/ }
+    echo "<h1><center>This Is $title Index Page<center></h1>" > $menuName/$menuName.html
 done
 
 module="(function () {
