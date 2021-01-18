@@ -28,7 +28,7 @@ moduleSaveItem="
         });"
 
 for menuName in $menuNames; do
-    menuState="            
+    menuState="
             .state('app.$moduleName.$menuName', {
                 url: '$menuName',
                 views: {
@@ -43,7 +43,7 @@ for menuName in $menuNames; do
 done
 module+=$moduleSaveItem
 for menuName in $menuNames; do
-    menuItem="        
+    menuItem="
         msNavigationServiceProvider.saveItem('$moduleName.$menuName', {
             title: '$menuName',
             state: 'app.$moduleName.$menuName',
