@@ -2,15 +2,15 @@
 
 createMenuState() {
     name_upper=$(sed -r 's/(^|-)(\w)/\U\2/g' <<<"$moduleName-$menuName")
-    nameFirstLower="$(tr '[:upper:]' '[:lower:]' <<<${name_upper:0:1})${name_upper:1}"
-    nameFirstLower+="Ctrl"
+    foo="$(tr '[:upper:]' '[:lower:]' <<<${name_upper:0:1})${name_upper:1}"
+    foo+="Ctrl"
     menuState="
             .state('app.$moduleName.$menuName', {
                 url: '/$menuName',
                 views: {
                     'content@app': {
                         templateUrl: 'app/main/$moduleName/$menuName/$menuName.html',
-                        controller: '$nameFirstLower as vm'
+                        controller: '$foo as vm'
                     }
                 }
             })"
@@ -612,10 +612,9 @@ addLastPortionOfModule() {
 logString="\n"
 
 cd src/app/main/
-echo -e "Use spinal-case naming convention"
-echo "Module Name(spinal-case)"?
+echo Module Name(spinal-case)?
 read moduleName
-echo -e "\nMenu Names(Use spinal-case naming convention. For multiple menu separate using space)?"
+echo "Menu Names(Use spinal-case. For multiple menu separate using space)?"
 read menuNames
 
 module="(function () {
@@ -633,168 +632,79 @@ module="(function () {
                 url: '/$moduleName'
             })"
 
-if [[ -d $moduleName ]]; then
-    logString+="$moduleName folder already exist\n"
-else
-    mkdir $moduleName
-    logString+="created folder $moduleName $(pwd)\n"
-fi
-
+mkdir $moduleName
+logString+="created folder $moduleName $(pwd)\n"
 cd $moduleName
 
-moduleFileName=${moduleName//-/.}
+echo -e "\n\nTo use layout for menu use option\n 1: Simple Workspace\n 2: Info Menu Workspace\n 3: Side Nav workspace\nPress enter for none\n"
 
-if [[ -f $moduleFileName.module.js ]]; then
+for menuName in $menuNames; do
+    mkdir $menuName
+    logString+="created folder $menuName $(pwd)\n"
+    touch $menuName/$menuName.html
+    logString+="created file $menuName.html $(pwd)/$menuName\n"
+    jsFileName=${menuName//-/.}
+    touch $menuName/$jsFileName.ctrl.js
+    logString+="created file $jsFileName.ctrl.js $(pwd)/$menuName\n"
 
-    echo -e "\n\nTo use layout for menu use option\n 1: Simple Workspace\n 2: Info Menu Workspace\n 3: Side Nav workspace\nPress enter for none\n"
+    echo -e "\n"
+    echo -n "$menuName layout : "
+    read layoutOption
 
-    for menuName in $menuNames; do
+    case $layoutOption in
 
-        if [[ -d $menuName ]]; then
-            echo -e "\nMenu $menuName already exist"
-        else
-            mkdir $menuName
-            logString+="created folder $menuName $(pwd)\n"
-            touch $menuName/$menuName.html
-            logString+="created file $menuName.html $(pwd)/$menuName\n"
-            jsFileName=${menuName//-/.}
-            touch $menuName/$jsFileName.ctrl.js
-            logString+="created file $jsFileName.ctrl.js $(pwd)/$menuName\n"
+    1)
+        simpleWorkSpace
+        ;;
 
-            name_upper=$(sed -r 's/(^|-)(\w)/\U\2/g' <<<"$moduleName-$menuName")
-            nameFirstLower="$(tr '[:upper:]' '[:lower:]' <<<${name_upper:0:1})${name_upper:1}"
-            nameFirstLower+="Ctrl"
-            menuState="            .state('app.$moduleName.$menuName', {\n                url: '\/$menuName',\n                views: {\n                    'content@app': {\n                        templateUrl: 'app\/main\/$moduleName\/$menuName\/$menuName.html',\n                        controller: '$nameFirstLower as vm'\n                    }\n                }\n            })"
-            sed -i "0,/.*msNavigationServiceProvider.saveItem.*/s/.*msNavigationServiceProvider.saveItem.*/$menuState\n&/" $moduleFileName.module.js
-
-            title_upper=$(sed 's/[^-]\+/\L\u&/g' <<<"$menuName")
-            title=${title_upper//-/ }
-            menuItem="\n        msNavigationServiceProvider.saveItem('$moduleName.$menuName', {\n            title: '$title',\n            state: 'app.$moduleName.$menuName',\n            icon: 'icon-cog-box',\n            weight: 1\n        });"
-            module+=$menuItem
-
-            sed -i "1h;1!H;\$!d;x;s/.*});[^\n]*/&$menuItem/" $moduleFileName.module.js
-
-            echo -e "\n"
-            echo -n "$menuName layout : "
-            read layoutOption
-
-            case $layoutOption in
-
-            1)
-                simpleWorkSpace
-                ;;
-
-            2)
-                echo -n "$menuName info menu level : "
-                read infoMenuLevel
-                case $infoMenuLevel in
-
-                1)
-                    infoMenuLevel1
-                    ;;
-
-                2)
-                    infoMenuLevel2
-                    ;;
-
-                3)
-                    infoMenuLevel3
-                    ;;
-
-                *)
-                    infoMenuLevel1
-                    ;;
-                esac
-                ;;
-
-            3)
-                sideNavWorkSpace
-                ;;
-
-            *)
-                defaultView
-                ;;
-            esac
-        fi
-
-    done
-
-    echo -e "$logString"
-    echo -e "done\n"
-
-else
-
-    echo -e "\n\nTo use layout for menu use option\n 1: Simple Workspace\n 2: Info Menu Workspace\n 3: Side Nav workspace\nPress enter for none\n"
-
-    for menuName in $menuNames; do
-        mkdir $menuName
-        logString+="created folder $menuName $(pwd)\n"
-        touch $menuName/$menuName.html
-        logString+="created file $menuName.html $(pwd)/$menuName\n"
-        jsFileName=${menuName//-/.}
-        touch $menuName/$jsFileName.ctrl.js
-        logString+="created file $jsFileName.ctrl.js $(pwd)/$menuName\n"
-
-        echo -e "\n"
-        echo -n "$menuName layout : "
-        read layoutOption
-
-        case $layoutOption in
+    2)
+        echo -n "$menuName info menu level : "
+        read infoMenuLevel
+        case $infoMenuLevel in
 
         1)
-            simpleWorkSpace
+            infoMenuLevel1
             ;;
 
         2)
-            echo -n "$menuName info menu level : "
-            read infoMenuLevel
-            case $infoMenuLevel in
-
-            1)
-                infoMenuLevel1
-                ;;
-
-            2)
-                infoMenuLevel2
-                ;;
-
-            3)
-                infoMenuLevel3
-                ;;
-
-            *)
-                infoMenuLevel1
-                ;;
-            esac
+            infoMenuLevel2
             ;;
 
         3)
-            sideNavWorkSpace
+            infoMenuLevel3
             ;;
 
         *)
-            defaultView
+            infoMenuLevel1
             ;;
         esac
+        ;;
 
-    done
+    3)
+        sideNavWorkSpace
+        ;;
 
-    for menuName in $menuNames; do
-        createMenuState
-    done
+    *)
+        defaultView
+        ;;
+    esac
 
-    addModuleSaveItem
+done
 
-    for menuName in $menuNames; do
-        saveMenuItem
-    done
+for menuName in $menuNames; do
+    createMenuState
+done
 
-    addLastPortionOfModule
+addModuleSaveItem
 
-    writeToModuleFile
+for menuName in $menuNames; do
+    saveMenuItem
+done
 
-    addModuleNameToIndexModule
-    echo -e "$logString"
-    echo -e "done\n"
+addLastPortionOfModule
 
-fi
+writeToModuleFile
+
+addModuleNameToIndexModule
+echo -e "$logString"
+echo -e "done\n"
