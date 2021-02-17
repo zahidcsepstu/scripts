@@ -21,6 +21,26 @@
                     }
                 }
             })
+
+
+            .state('app.bash-test.menu-one', {
+                url: '/menu-one',
+                views: {
+                    'content@app': {
+                        templateUrl: 'app/main/bash-test/menu-one/menu-one.html',
+                        controller: 'menuOne-Ctrl as vm'
+                    }
+                }
+            })
+            .state('app.bash-test.menu-two', {
+                url: '/menu-two',
+                views: {
+                    'content@app': {
+                        templateUrl: 'app/main/bash-test/menu-two/menu-two.html',
+                        controller: 'menuTwo-Ctrl as vm'
+                    }
+                }
+            })
         //CODE_GENERATOR_MARKER_STATE
         msNavigationServiceProvider.saveItem('', {
             title: '',
