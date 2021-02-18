@@ -104,6 +104,20 @@ confirmAndContinue() {
     fi
 }
 
+addModuleNameToIndexModule() {
+
+    if isFile $TD_PATH/src/app/index.module.js; then
+        if isExists "app.$1" $TD_PATH/src/app/index.module.js; then
+            logString+="${yellow}[W]:App Name ${magenta}'app.$1'${yellow} Already Exists index.module.js${reset}\n"
+        else
+            addLineBeforeFirstMatch "\/\/CODE_GENERATOR_MARKER_APP_NAME" "            'app.$1'," "$TD_PATH/src/app/index.module.js"
+            logString+="${cyan}[I]:App Name ${magenta}'app.$1'${cyan} added at index.module.js${reset}\n"
+        fi
+    else
+        logString+="${red}[E]:index.module.js not available at $TD_PATH/src/app/index.module.js${reset}\n"
+    fi
+}
+
 getMODULE() {
     # moduleAppName moduleTitle
     echo "(function () {
@@ -156,20 +170,6 @@ getSAVE_ITEM() {
             icon: 'icon-cog-box',\n\
             weight: 1\n\
         });"
-}
-
-addModuleNameToIndexModule() {
-
-    if isFile $TD_PATH/src/app/index.module.js; then
-        if isExists "app.$1" $TD_PATH/src/app/index.module.js; then
-            logString+="${yellow}[W]:App Name ${magenta}'app.$1'${yellow} Already Exists index.module.js${reset}\n"
-        else
-            addLineBeforeFirstMatch "\/\/CODE_GENERATOR_MARKER_APP_NAME" "            'app.$1'," "$TD_PATH/src/app/index.module.js"
-            logString+="${cyan}[I]:App Name ${magenta}'app.$1'${cyan} added at index.module.js${reset}\n"
-        fi
-    else
-        logString+="${red}[E]:index.module.js not available at $TD_PATH/src/app/index.module.js${reset}\n"
-    fi
 }
 
 simpleWorkSpaceCtrl() {
@@ -366,7 +366,7 @@ infoMenuLevel3Html() {
 </div>"
 }
 
-infoMenuLevel1() {
+infoMenuLevel1Ctrl() {
     # moduleApp ctrlName
 
     echo "(function () {
@@ -401,7 +401,10 @@ infoMenuLevel1() {
         ]
     }
 })();"
+}
 
+infoMenuLevel1Html() {
+    # title
     echo "<div ng-if="\""vm.loadViewContent"\"" class="\""page-layout simple right-sidenav"\"" layout="\""row"\"" style="\""height:100%;"\"">
     <div class="\""center"\"" layout="\""column"\"" style="\""width: 100%;"\"">
         <div layout="\""row"\"" class="\""header md-accent-bg h-50"\"">
@@ -440,13 +443,10 @@ infoMenuLevel1() {
         </div>
     </div>
 </div>"
-
 }
 
-infoMenuLevel2() {
-
+infoMenuLevel2Ctrl() {
     # moduleApp ctrlName
-
     echo "(function () {
     'use strict';
     angular
@@ -489,7 +489,10 @@ infoMenuLevel2() {
         ]
     }
 })();"
+}
 
+infoMenuLevel2Html() {
+    # title
     echo "<div ng-if="\""vm.loadViewContent"\"" class="\""page-layout simple right-sidenav"\"" layout="\""row"\"" style="\""height:100%;"\"">
     <div class="\""center"\"" layout="\""column"\"" style="\""width: 100%;"\"">
         <div layout="\""row"\"" class="\""header md-accent-bg h-50"\"">
@@ -548,7 +551,7 @@ infoMenuLevel2() {
 </div>"
 }
 
-sideNavWorkSpace() {
+sideNavWorkSpaceCtrl() {
     # moduleApp ctrlName menuTitle
     echo "(function () {
     'use strict';
@@ -609,7 +612,10 @@ sideNavWorkSpace() {
         }
     }
 })();"
+}
 
+sideNavWorkSpaceHtml() {
+    # title
     echo "<div id="\""common-detail"\"" ng-if="\""vm.loadViewContent"\"" class="\""page-layout simple right-sidenav"\"" layout="\""row"\"" style="\""height: 100%;"\"">
     <md-sidenav class="\""left-sidenav w-205"\"" md-component-id="\""left-sidenav"\"" md-is-locked-open="\""\$mdMedia('gt-md') && vm.leftNavPined "\"" ng-include="\""'app/main/common/details/sidenavs/leftSideNav.html'"\"" ms-sidenav-helper style="\""overflow:hidden;"\"">
     </md-sidenav>
@@ -633,29 +639,30 @@ sideNavWorkSpace() {
         </div>
     </div>
 </div>"
-
 }
 
-defaultView() {
-
-    ctrl="(function () {
+defaultViewCtrl() {
+    # moduleApp ctrlName
+    echo "(function () {
     'use strict';
     angular
-        .module('app.$moduleName')
-        .controller('$ctrlName', $ctrlName);
+        .module('app.$1')
+        .controller('$2', $2);
 
     /** @ngInject */
-    function $ctrlName() {
+    function $2() {
         debugger
-        var TECHDISER_COMPONENT_NAME = "\""$ctrlName"\"";
+        var TECHDISER_COMPONENT_NAME = "\""$2"\"";
         var TECHDISER_SERVICE_INFO = {};
         var vm = this;
         vm.loadViewContent = true
     }
 })();"
+}
 
-    echo "<h1><center>Default View<br>This Is $title Index Page<center></h1>"
-
+defaultViewHtml() {
+    # title
+    echo "<h1><center>Default View<br>This Is $1 Index Page<center></h1>"
 }
 
 # echo -e "Use spinal-case naming convention"
