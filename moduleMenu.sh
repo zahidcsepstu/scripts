@@ -73,9 +73,9 @@ spinalToHtmlFileName() {
 }
 
 spinalToModuleFileName() {
-    local jsFileName=${1//-/.}
-    jsFileName+=".module.js"
-    echo "$jsFileName"
+    local moduleFileName=${1//-/.}
+    moduleFileName+=".module.js"
+    echo "$moduleFileName"
 }
 
 isDirectory() {
@@ -87,7 +87,6 @@ isFile() {
 }
 
 isExists() {
-    echo "$1"
     grep -q "$1" $2
 }
 
@@ -173,7 +172,7 @@ getSAVE_ITEM() {
 }
 
 simpleWorkSpaceCtrl() {
-    # moduleApp ctrlName
+    # moduleAppName ctrlName
     echo "(function () {
     'use strict';
     angular
@@ -211,7 +210,7 @@ simpleWorkSpaceHtml() {
 }
 
 infoMenuLevel3Ctrl() {
-    # moduleApp ctrlName
+    # moduleAppName ctrlName
     echo "(function () {
     'use strict';
     angular
@@ -367,7 +366,7 @@ infoMenuLevel3Html() {
 }
 
 infoMenuLevel1Ctrl() {
-    # moduleApp ctrlName
+    # moduleAppName ctrlName
 
     echo "(function () {
     'use strict';
@@ -446,7 +445,7 @@ infoMenuLevel1Html() {
 }
 
 infoMenuLevel2Ctrl() {
-    # moduleApp ctrlName
+    # moduleAppName ctrlName
     echo "(function () {
     'use strict';
     angular
@@ -552,7 +551,7 @@ infoMenuLevel2Html() {
 }
 
 sideNavWorkSpaceCtrl() {
-    # moduleApp ctrlName menuTitle
+    # moduleAppName ctrlName menuTitle
     echo "(function () {
     'use strict';
     angular
@@ -642,7 +641,7 @@ sideNavWorkSpaceHtml() {
 }
 
 defaultViewCtrl() {
-    # moduleApp ctrlName
+    # moduleAppName ctrlName
     echo "(function () {
     'use strict';
     angular
@@ -665,46 +664,66 @@ defaultViewHtml() {
     echo "<h1><center>Default View<br>This Is $1 Index Page<center></h1>"
 }
 
-# echo -e "Use spinal-case naming convention"
-# echo "Module Name(spinal-case)"?
-# read moduleName
+echo -e "Use spinal-case naming convention"
+echo "Module Name(spinal-case)"?
+read moduleName
 
-# echo -e "\nMenu Names(Use spinal-case naming convention. For multiple menu separate using space)?"
-# read menuNames
-# menuNames="menu-one menu-two menu-three"
+echo -e "\nMenu Names(Use spinal-case naming convention. For multiple menu separate using space)?"
+read menuNames
 
-# echo -e "\n\nTo use layout for menu use option\n 1: Simple Workspace\n 2: Info Menu Workspace\n 3: Side Nav workspace\nPress enter for none\n"
+echo -e "\n\nTo use layout for menu use option\n 1: Simple Workspace\n 2: Info Menu Workspace\n 3: Side Nav workspace\nPress enter for none\n"
 
-# COUNTER=0
-# for menuName in $menuNames; do
-#     echo -e "\n"
-#     echo -n "$menuName layout : "
-#     read layout
-#     if [[ $layout == 2 ]]; then
-#         echo -n "$menuName info menu level(1-3) : "
-#         read level
-#     else
-#         level=0
-#     fi
-#     declare -A menuList$COUNTER="(
-#         [menuName]="$menuName"
-#         [layout]=$layout
-#         [level]=$level
-#     )"
-#     COUNTER+=1
-# done
-moduleName="bash-test-new"
+COUNTER=0
+for menuName in $menuNames; do
+    echo -e "\n"
+    echo -n "$menuName layout : "
+    read layout
+    if [[ $layout == 2 ]]; then
+        echo -n "$menuName info menu level(1-3) : "
+        read level
+    else
+        level=0
+    fi
+    declare -A menuList$COUNTER="(
+        [menuName]="$menuName"
+        [layout]=$layout
+        [level]=$level
+    )"
+    COUNTER+=1
+done
 
-declare -A menuList0=(
-    [menuName]='menu-one'
-    [layout]=1
-    [level]=0
-)
-declare -A menuList1=(
-    [menuName]='menu-two'
-    [layout]=2
-    [level]=1
-)
+# moduleName="bash-test-new"
+
+# declare -A menuList0=(
+#     [menuName]='menu-one'
+#     [layout]=1
+#     [level]=0
+# )
+# declare -A menuList1=(
+#     [menuName]='menu-two'
+#     [layout]=2
+#     [level]=1
+# )
+# declare -A menuList2=(
+#     [menuName]='menu-three'
+#     [layout]=2
+#     [level]=2
+# )
+# declare -A menuList3=(
+#     [menuName]='menu-four'
+#     [layout]=2
+#     [level]=3
+# )
+# declare -A menuList4=(
+#     [menuName]='menu-five'
+#     [layout]=3
+#     [level]=0
+# )
+# declare -A menuList5=(
+#     [menuName]='menu-six'
+#     [layout]=4
+#     [level]=1
+# )
 
 declare -n menuList
 
@@ -769,53 +788,151 @@ for menuList in ${!menuList@}; do
 
 done
 
+unset -n menuList
+declare -n menuList
+
 cd $TD_PATH/src/app/main/$moduleDirName/
 
 for menuList in ${!menuList@}; do
 
-    mkdir ${menuList[menuName]}
+    if isDirectory "${menuList[menuName]}"; then
+        logString+="${yellow}[W]:Directory ${magenta}${menuList[menuName]}${yellow} Already Exists at $TD_PATH/src/app/main/$moduleDirName/${menuList[menuName]}${reset}\n"
+    else
+        mkdir ${menuList[menuName]}
+        logString+="${cyan}[I]:Created Directory ${magenta}${menuList[menuName]}${cyan} at $TD_PATH/src/app/main/$moduleDirName/${menuList[menuName]}${reset}\n"
+    fi
 
-    htmlFileName=spinalToHtmlFileName "${menuList[menuName]}"
-    jsFileName=spinalToJsFileName "${menuList[menuName]}"
+    htmlFileName=$(spinalToHtmlFileName "${menuList[menuName]}")
+    if isFile "${menuList[menuName]}"/$htmlFileName; then
+        logString+="${yellow}[W]:File ${magenta}$htmlFileName${yellow} Already Exists at $TD_PATH/src/app/main/$moduleDirName/${menuList[menuName]}/$htmlFileName${reset}\n"
+    else
+        touch "${menuList[menuName]}"/$htmlFileName
+        logString+="${cyan}[I]:Created File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/${menuList[menuName]}/$htmlFileName${reset}\n"
 
-    jsFileName=${menuName//-/.}
-    touch $menuName/$jsFileName.ctrl.js
-
-    case $layoutOption in
-
-    1)
-        simpleWorkSpace
-        ;;
-
-    2)
-        case $infoMenuLevel in
+        case ${menuList[layout]} in
 
         1)
-            infoMenuLevel1
+            menuTitle=$(spinalToTitle "${menuList[menuName]}")
+            htmlFileString=$(simpleWorkSpaceHtml "$menuTitle")
+            echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+            logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
             ;;
 
         2)
-            infoMenuLevel2
+            case ${menuList[level]} in
+
+            1)
+                menuTitle=$(spinalToTitle "${menuList[menuName]}")
+                htmlFileString=$(infoMenuLevel1Html "$menuTitle")
+                echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
+                ;;
+
+            2)
+                menuTitle=$(spinalToTitle "${menuList[menuName]}")
+                htmlFileString=$(infoMenuLevel2Html "$menuTitle")
+                echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
+                ;;
+
+            3)
+                menuTitle=$(spinalToTitle "${menuList[menuName]}")
+                htmlFileString=$(infoMenuLevel3Html "$menuTitle")
+                echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
+                ;;
+
+            *)
+                menuTitle=$(spinalToTitle "${menuList[menuName]}")
+                htmlFileString=$(infoMenuLevel1Html "$menuTitle")
+                echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
+                ;;
+            esac
             ;;
 
         3)
-            infoMenuLevel3
+            menuTitle=$(spinalToTitle "${menuList[menuName]}")
+            htmlFileString=$(sideNavWorkSpaceHtml "$menuTitle")
+            echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+            logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
             ;;
 
         *)
-            infoMenuLevel1
+            menuTitle=$(spinalToTitle "${menuList[menuName]}")
+            htmlFileString=$(defaultViewHtml "$menuTitle")
+            echo "$htmlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName
+            logString+="${cyan}[I]:Write to File ${magenta}$htmlFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$htmlFileName${reset}\n"
             ;;
         esac
-        ;;
+    fi
 
-    3)
-        sideNavWorkSpace
-        ;;
+    jsFileName=$(spinalToJsFileName "${menuList[menuName]}")
 
-    *)
-        defaultView
-        ;;
-    esac
+    if isFile "${menuList[menuName]}"/$jsFileName; then
+        logString+="${yellow}[W]:File ${magenta}$jsFileName${yellow} Already Exists at $TD_PATH/src/app/main/$moduleDirName/${menuList[menuName]}/$jsFileName${reset}\n"
+    else
+        touch "${menuList[menuName]}"/$jsFileName
+        logString+="${cyan}[I]:Created File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/${menuList[menuName]}/$jsFileName${reset}\n"
+
+        case ${menuList[layout]} in
+
+        1)
+            ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}")
+            ctrlFileString=$(simpleWorkSpaceCtrl "$moduleAppName" "$ctrlName")
+            echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+            logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+            ;;
+
+        2)
+            case ${menuList[level]} in
+
+            1)
+                ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}")
+                ctrlFileString=$(infoMenuLevel1Ctrl "$moduleAppName" "$ctrlName")
+                echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+                ;;
+
+            2)
+                ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}")
+                ctrlFileString=$(infoMenuLevel2Ctrl "$moduleAppName" "$ctrlName")
+                echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+                ;;
+
+            3)
+                ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}")
+                ctrlFileString=$(infoMenuLevel3Ctrl "$moduleAppName" "$ctrlName")
+                echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+                ;;
+
+            *)
+                ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}")
+                ctrlFileString=$(infoMenuLevel1Ctrl "$moduleAppName" "$ctrlName")
+                echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+                logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+                ;;
+            esac
+            ;;
+
+        3)
+            menuTitle=$(spinalToTitle "${menuList[menuName]}")
+            ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}" "$menuTitle")
+            ctrlFileString=$(sideNavWorkSpaceCtrl "$moduleAppName" "$ctrlName")
+            echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+            logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+            ;;
+
+        *)
+            ctrlName=$(spinalToCtrlName "$moduleName" "${menuList[menuName]}")
+            ctrlFileString=$(defaultViewCtrl "$moduleAppName" "$ctrlName")
+            echo "$ctrlFileString" >$TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName
+            logString+="${cyan}[I]:Write to File ${magenta}$jsFileName${cyan} at $TD_PATH/src/app/main/$moduleDirName/"${menuList[menuName]}"/$jsFileName${reset}\n"
+            ;;
+        esac
+    fi
 
 done
 
